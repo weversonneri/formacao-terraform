@@ -14,3 +14,23 @@ variable "key_name" {
 variable "instance_type" {
   type = string
 }
+
+variable "security_group" {
+  type = string
+}
+
+variable "max_size" {
+  type = number
+}
+
+variable "min_size" {
+  type = number
+}
+
+variable "group_name" {
+  type = string
+}
+
+variable "producao" {
+  type = bool
+}

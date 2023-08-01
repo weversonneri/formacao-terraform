@@ -1,39 +1,28 @@
-- hosts: terraform-ansible
+#!/bin/bash
+cd /home/ubuntu
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+sudo python3 get-pip.py
+sudo python3 -m pip install ansible
+tee -a playbook.yml > /dev/null <<EOT
+- hosts: localhost
   tasks:
-  - name: instalaçao de python3, virtualenv
+  - name: Instalando o python3, virtualenv
     apt:
       pkg:
       - python3
       - virtualenv
-      - nodejs
-      - npm
-      update_cache: yes  
+      update_cache: yes
     become: yes
-  - name: Git clone projeto
+  - name: Git Clone
     ansible.builtin.git:
       repo: https://github.com/guilhermeonrails/clientes-leo-api.git
       dest: /home/ubuntu/tcc
       version: master
       force: yes
-  #     repo: https://github.com/weversonneri/desafio-react.git
-  #     dest: /home/ubuntu/react
-  #     version: main
-  #     force: yes
-  - name: instalacao de dependencia com pip (django e django rest)
+  - name: Instalando dependencias com pip
     pip:
       virtualenv: /home/ubuntu/tcc/venv
       requirements: /home/ubuntu/tcc/requirements.txt
-  - name: instalacao de dependencia com base no package.json (react)
-    npm:
-      path: /home/ubuntu/react
-  - name: Verificando se o projeto ja existe
-    stat:
-      path: /home/ubuntu/tcc/setup/settings.py
-    register: projeto
-  - name: Iniciando o projeto
-    shell: '. /home/ubuntu/tcc/venv/bin/activate; django-admin startproject setup /home/ubuntu/tcc'
-    when: not projeto.stat.exists
-    ignore_errors: yes
   - name: Alterando o hosts do settings
     lineinfile:
       path: /home/ubuntu/tcc/setup/settings.py
@@ -46,7 +35,5 @@
     shell: '. /home/ubuntu/tcc/venv/bin/activate; python /home/ubuntu/tcc/manage.py loaddata clientes.json'
   - name: iniciando o servidor
     shell: '. /home/ubuntu/tcc/venv/bin/activate; nohup python /home/ubuntu/tcc/manage.py runserver 0.0.0.0:8000 &'
-  # - name: iniciando o app
-  #   shell: 'nohup npm start --prefix /home/ubuntu/react >/dev/null 2>&1 &'
-    
-    
+EOT
+ansible-playbook playbook.yml 
